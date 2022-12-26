@@ -3,6 +3,7 @@
 #
 define wireguard::provider::wgquick (
   String[1] $interface = $title,
+  String[1] $config_directory = '/etc/wireguard',
   Enum['present', 'absent'] $ensure = 'present',
   Wireguard::Peers $peers = [],
   Integer[1024, 65000] $dport = Integer(regsubst($title, '^\D+(\d+)$', '\1')),
@@ -26,7 +27,7 @@ define wireguard::provider::wgquick (
     'postdown_cmds' => $postdown_cmds,
   }
 
-  file { "/etc/wireguard/${interface}.conf":
+  file { "${wireguard::config_directory}/${interface}.conf":
     ensure  => $ensure,
     content => epp("${module_name}/wireguard_conf.epp", $params),
     owner   => 'root',

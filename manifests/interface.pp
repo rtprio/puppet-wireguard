@@ -111,7 +111,7 @@ define wireguard::interface (
   Array[Hash[String[1], Variant[String[1], Boolean]]] $routes = [],
   Optional[String[1]] $private_key = undef,
   Optional[String[1]] $preshared_key = undef,
-  Enum['systemd', 'wgquick'] $provider = 'systemd',
+  Optional[Enum['systemd', 'wgquick']] $provider = undef,
   Array[String[1]] $preup_cmds = [],
   Array[String[1]] $postup_cmds = [],
   Array[String[1]] $predown_cmds = [],
@@ -147,7 +147,7 @@ define wireguard::interface (
       ensure  => 'file',
       content => $private_key,
       owner   => 'root',
-      group   => 'systemd-network',
+      group   => $wireguard::config_group,
       mode    => '0640',
       notify  => Exec["generate public key ${interface}"],
     }
@@ -156,7 +156,7 @@ define wireguard::interface (
       command => "wg genkey > ${interface}",
       cwd     => $wireguard::config_directory,
       creates => $private_key_path,
-      path    => '/usr/bin',
+      path    => '/usr/bin:/usr/local/bin',
       before  => File[$private_key_path],
       notify  => Exec["generate public key ${interface}"],
     }
@@ -164,7 +164,7 @@ define wireguard::interface (
     file { $private_key_path:
       ensure => 'file',
       owner  => 'root',
-      group  => 'systemd-network',
+      group  => $wireguard::config_group,
       mode   => '0640',
     }
   }
@@ -173,13 +173,13 @@ define wireguard::interface (
     command => "wg pubkey < ${interface} > ${interface}.pub",
     cwd     => $wireguard::config_directory,
     creates => "${wireguard::config_directory}/${interface}.pub",
-    path    => '/usr/bin',
+    path    => '/usr/bin:/usr/local/bin',
   }
 
   file { "${wireguard::config_directory}/${interface}.pub":
     ensure  => 'file',
     owner   => 'root',
-    group   => 'root',
+    group   => $wireguard::root_group,
     mode    => '0600',
     require => Exec["generate public key ${interface}"],
   }
@@ -194,7 +194,9 @@ define wireguard::interface (
     $peer = []
   }
 
-  case $provider {
+  $real_provider = pick($provider, $wireguard::default_provider)
+  
+  case $real_provider {
     'systemd': {
       if !empty($preup_cmds) {
         warning('PreUp commands are not supported by systemd-networkd')
@@ -239,7 +241,7 @@ define wireguard::interface (
       }
     }
     default: {
-      fail("provider ${provider} not supported")
+      fail("provider ${real_provider} not supported")
     }
   }
 }

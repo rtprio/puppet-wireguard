@@ -14,7 +14,10 @@ class wireguard (
   Boolean $manage_package = true,
   String[1] $package_name = 'wireguard-tools',
   Enum['installed', 'latest', 'absent'] $package_ensure = 'installed',
-  Stdlib::Absolutepath $config_directory = '/etc/wireguard',
+  Stdlib::Absolutepath $config_directory = $wireguard::config_directory,
+  Enum['systemd', 'wgquick'] $default_provider = $wireguard::default_provider,
+  String[1] $root_group = $wireguard::root_group,
+  String[1] $config_group = $wireguard::config_group,
   Boolean $purge_unknown_keys = true,
   Hash[String[1], Any] $interfaces = {},
 ) {
@@ -38,12 +41,13 @@ class wireguard (
     ensure => $_file_ensure,
     owner  => 'root',
     mode   => '0750',
-    group  => 'systemd-network',
+    group  => $wireguard::root_group,
     *      => $options,
   }
 
   $interfaces.each |$interfacename, $interfaceattributes| {
     wireguard::interface { $interfacename:
+      provider => $default_provider,
       * => $interfaceattributes,
     }
   }
