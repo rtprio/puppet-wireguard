@@ -1,0 +1,6 @@
+---
+wireguard::config_directory: '/etc/wireguard'
+wireguard::config_group: 'systemd-network'
+wireguard::default_provider: systemd
+wireguard::manage_firewall: true
+wireguard::root_group: 'root'
