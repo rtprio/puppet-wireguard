@@ -4,5 +4,3 @@ wireguard::config_group: 'wheel'
 wireguard::default_provider: 'wgquick'
 wireguard::manage_firewall: false
 wireguard::root_group: 'wheel'
-wireguard::interface::provider: 'wgquick'
-wireguard::interface::config_group: 'wheel'

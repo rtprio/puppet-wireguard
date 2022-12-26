@@ -102,7 +102,7 @@ define wireguard::interface (
   Integer[1024, 65000] $dport = Integer(regsubst($title, '^\D+(\d+)$', '\1')),
   Optional[Integer[0, 4294967295]] $firewall_mark = undef,
   String[1] $input_interface = $facts['networking']['primary'],
-  Boolean $manage_firewall = true,
+  Boolean $manage_firewall = undef,
   Array[Stdlib::IP::Address] $source_addresses = [],
   Array[Hash[String,Variant[Stdlib::IP::Address::V4,Stdlib::IP::Address::V6]]] $addresses = [],
   Optional[String[1]] $description = undef,
