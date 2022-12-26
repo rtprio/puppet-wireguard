@@ -26,6 +26,9 @@
   ],
   "operatingsystem_support": [
     {
+      "operatingsystem": "FreeBSD"
+    },
+    {
       "operatingsystem": "Archlinux"
     },
     {
